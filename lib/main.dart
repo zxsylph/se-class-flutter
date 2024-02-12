@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:location/location.dart';
 
 void main() {
   runApp(const MyApp());
@@ -122,7 +124,20 @@ class _MyHomePageState extends State<MyHomePage> {
                   MaterialPageRoute(builder: (context) => const SecondRoute()),
                 );
               },
-              child: const Text('TextButton'),
+              child: const Text('Second Route'),
+            ),
+            TextButton(
+              style: ButtonStyle(
+                foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const LocationRoute()),
+                );
+              },
+              child: const Text('Location Route'),
             )
           ],
         ),
@@ -132,6 +147,70 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+class LocationRoute extends StatelessWidget {
+  const LocationRoute({super.key});
+
+  getLocation() async {
+    Location location = new Location();
+
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+    LocationData _locationData;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    _locationData = await location.getLocation();
+    return _locationData;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Location Route'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            TextButton(
+              style: ButtonStyle(
+                foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+              ),
+              onPressed: () {
+                debugPrint('Get Location');
+                debugPrint(getLocation().toString());
+              },
+              child: const Text('Get Location'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate back to first route when tapped.
+                Navigator.pop(context);
+              },
+              child: const Text('Go back!'),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
