@@ -5,12 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
-late List<CameraDescription> _cameras;
-
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  _cameras = await availableCameras();
-  debugPrint("_cameras : ${_cameras.toString()}");
   runApp(const MyApp());
 }
 
@@ -155,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const TakePictureScreen()),
+                      builder: (context) => const LocationRoute()),
                 );
               },
               child: const Text('Camera Route'),
@@ -175,7 +170,10 @@ class _MyHomePageState extends State<MyHomePage> {
 class TakePictureScreen extends StatefulWidget {
   const TakePictureScreen({
     super.key,
+    required this.camera,
   });
+
+  final CameraDescription camera;
 
   @override
   TakePictureScreenState createState() => TakePictureScreenState();
@@ -192,7 +190,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     // create a CameraController.
     _controller = CameraController(
       // Get a specific camera from the list of available cameras.
-      _cameras[1],
+      widget.camera,
       // Define the resolution to use.
       ResolutionPreset.medium,
     );
@@ -239,7 +237,6 @@ class TakePictureScreenState extends State<TakePictureScreen> {
             // Attempt to take a picture and get the file `image`
             // where it was saved.
             final image = await _controller.takePicture();
-            debugPrint("image.path : ${image.path.toString()}");
 
             if (!mounted) return;
 
@@ -280,6 +277,7 @@ class DisplayPictureScreen extends StatelessWidget {
     );
   }
 }
+
 
 class LocationRoute extends StatelessWidget {
   const LocationRoute({super.key});
@@ -340,7 +338,7 @@ class LocationRoute extends StatelessWidget {
                 // debugPrint(getLocation().toString());
                 // debugPrint(_determinePosition().toString());
                 _determinePosition()
-                    .then((value) => {debugPrint("My Location : ${value.toString()}")});
+                    .then((value) => {debugPrint(value.toString())});
               },
               child: const Text('Get Location'),
             ),
