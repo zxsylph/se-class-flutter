@@ -100,7 +100,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const TakePictureScreen()),
+                      builder: (context) => const TakePictureScreen(
+                        cameraIndex: 1,
+                      )),
                 );
               },
               child: const Text('Camera Route'),
@@ -120,7 +122,10 @@ class _MyHomePageState extends State<MyHomePage> {
 class TakePictureScreen extends StatefulWidget {
   const TakePictureScreen({
     super.key,
+    required this.cameraIndex
   });
+
+  final int cameraIndex;
 
   @override
   TakePictureScreenState createState() => TakePictureScreenState();
@@ -137,7 +142,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     // create a CameraController.
     _controller = CameraController(
       // Get a specific camera from the list of available cameras.
-      _cameras[1],
+      _cameras[widget.cameraIndex],
       // Define the resolution to use.
       ResolutionPreset.medium,
     );
@@ -189,15 +194,24 @@ class TakePictureScreenState extends State<TakePictureScreen> {
             if (!mounted) return;
 
             // If the picture was taken, display it on a new screen.
+            // await Navigator.of(context).push(
+            //   MaterialPageRoute(
+            //     builder: (context) => DisplayPictureScreen(
+            //       // Pass the automatically generated path to
+            //       // the DisplayPictureScreen widget.
+            //       imagePath: image.path,
+            //     ),
+            //   ),
+            // );
+            var nextIndex = (widget.cameraIndex==1)?0:1;
             await Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => DisplayPictureScreen(
-                  // Pass the automatically generated path to
-                  // the DisplayPictureScreen widget.
-                  imagePath: image.path,
-                ),
+                builder: (context) => TakePictureScreen(
+                  cameraIndex: nextIndex,
+                )
               ),
             );
+            
           } catch (e) {
             // If an error occurs, log the error to the console.
             print(e);
